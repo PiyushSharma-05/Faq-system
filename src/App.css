@@ -765,3 +765,54 @@ body{
 
   font-weight:700;
 }
+
+/* 1. Responsive Grid Optimization */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  align-items: start; /* Prevents shorter cards from stretching to match tall cards */
+  padding: 20px 0;
+}
+
+/* 2. Style the Category Card Box */
+.category-card {
+  background: #1e293b; /* Match your dark blue card background theme */
+  border-radius: 12px;
+  border: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  max-height: 500px; /* Restricts the total height of any single section box */
+  overflow: hidden;
+}
+
+/* 3. Enabling Internal Card Scroll for FAQs */
+.category-body {
+  flex-grow: 1;
+  overflow-y: auto; /* Enables local vertical scrolling if items overflow 500px */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
+  /* Smooth scrolling inside the card */
+  scroll-behavior: smooth;
+}
+
+/* 4. Beautiful Custom Scrollbar for a modern look */
+.category-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.category-body::-webkit-scrollbar-thumb {
+  background: #475569; /* Subtle gray thumb color */
+  border-radius: 10px;
+}
+
+.category-body::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
