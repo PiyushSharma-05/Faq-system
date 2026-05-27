@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import QueryPage from "../pages/QueryPage";
 import PostFAQPage from "../pages/PostFAQPage";
 import FAQManagementPage from "../pages/FAQManagementPage";
+import QuestionPage from "../pages/QuestionPage";
 
 function AppRoutes() {
   return (
@@ -21,6 +22,11 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={<FAQManagementPage />}
+      />
+
+      <Route
+      path="/question"
+      element={<QuestionPage />}
       />
 
     </Routes>

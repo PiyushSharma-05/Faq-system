@@ -4,6 +4,7 @@ function PostFAQPage() {
   return (
     <div className="page-wrapper">
       <FAQForm />
+      
     </div>
   );
 }
