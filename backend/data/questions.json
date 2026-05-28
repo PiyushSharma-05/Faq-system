@@ -1,43 +1,8 @@
 [
   {
-    "id": 1779884644506,
-    "question": "what are sp points?",
-    "description": "about spurthi points",
-    "category": "Internship Queries",
-    "status": "resolved",
-    "upvotes": 1,
-    "upvotedBy": [
-      "chinmayee"
-    ],
-    "addedToFaq": false,
-    "answers": [
-      {
-        "id": 1779884756635,
-        "text": "Sp points are sputhi points which are important for the internship",
-        "verified": true
-      },
-      {
-        "id": 1779904181822,
-        "text": "they are imp",
-        "verified": false
-      }
-    ]
-  },
-  {
-    "id": 1779904165786,
-    "question": "what are sp points",
-    "description": "about sp points\n",
-    "category": "Placements",
-    "status": "unresolved",
-    "upvotes": 0,
-    "upvotedBy": [],
-    "addedToFaq": false,
-    "answers": []
-  },
-  {
-    "id": 1779904523204,
-    "question": "who is more introvert?",
-    "description": "....",
+    "id": 1779948732367,
+    "question": "who will win srh vs rr",
+    "description": "srh vs rr",
     "category": "Internship Queries",
     "status": "resolved",
     "upvotes": 1,
@@ -47,8 +12,8 @@
     "addedToFaq": false,
     "answers": [
       {
-        "id": 1779904573589,
-        "text": "Bhimashri",
+        "id": 1779948747687,
+        "text": "Srh obv \n",
         "verified": true
       }
     ]

@@ -143,7 +143,12 @@ const verifyAnswer = (
         req.params.questionId
       ) {
 
+        /* QUESTION RESOLVED */
+
         q.status = "resolved";
+
+        /* VERIFY ONLY
+           SELECTED ANSWER */
 
         q.answers =
           q.answers.map(
