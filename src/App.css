@@ -766,222 +766,53 @@ body{
   font-weight:700;
 }
 
-/* =========================
-   LOGIN PAGE
-========================= */
-
-.login-page{
-  min-height:100vh;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  padding:20px;
+/* 1. Responsive Grid Optimization */
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  align-items: start; /* Prevents shorter cards from stretching to match tall cards */
+  padding: 20px 0;
 }
 
-/* LOGIN FORM */
-
-.login-form{
-
-  width:100%;
-  max-width:420px;
-
-  background:
-  rgba(255,255,255,.08);
-
-  backdrop-filter:blur(18px);
-
-  border:
-  1px solid rgba(255,255,255,.08);
-
-  border-radius:24px;
-
-  padding:40px;
-
-  box-shadow:
-  0 8px 32px rgba(0,0,0,.25);
+/* 2. Style the Category Card Box */
+.category-card {
+  background: #1e293b; /* Match your dark blue card background theme */
+  border-radius: 12px;
+  border: 1px solid #334155;
+  display: flex;
+  flex-direction: column;
+  max-height: 500px; /* Restricts the total height of any single section box */
+  overflow: hidden;
 }
 
-/* TITLE */
-
-.login-form h1{
-
-  text-align:center;
-
-  margin-bottom:30px;
-
-  font-size:2.5rem;
-
-  color:white;
+/* 3. Enabling Internal Card Scroll for FAQs */
+.category-body {
+  flex-grow: 1;
+  overflow-y: auto; /* Enables local vertical scrolling if items overflow 500px */
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
+  /* Smooth scrolling inside the card */
+  scroll-behavior: smooth;
 }
 
-/* INPUTS */
-
-.login-form input{
-
-  width:100%;
-
-  padding:16px;
-
-  margin-bottom:18px;
-
-  border:none;
-  outline:none;
-
-  border-radius:14px;
-
-  background:
-  rgba(255,255,255,.08);
-
-  color:white;
-
-  font-size:16px;
-
-  transition:.3s;
+/* 4. Beautiful Custom Scrollbar for a modern look */
+.category-body::-webkit-scrollbar {
+  width: 6px;
 }
 
-/* PLACEHOLDER */
-
-.login-form input::placeholder{
-
-  color:#cbd5e1;
+.category-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-/* INPUT FOCUS */
-
-.login-form input:focus{
-
-  border:
-  1px solid #8b5cf6;
-
-  background:
-  rgba(255,255,255,.12);
+.category-body::-webkit-scrollbar-thumb {
+  background: #475569; /* Subtle gray thumb color */
+  border-radius: 10px;
 }
 
-/* LOGIN BUTTON */
-
-.login-form button{
-
-  width:100%;
-
-  padding:16px;
-
-  border:none;
-
-  border-radius:14px;
-
-  cursor:pointer;
-
-  font-size:16px;
-
-  font-weight:600;
-
-  color:white;
-
-  background:
-  linear-gradient(
-    135deg,
-    #2563eb,
-    #8b5cf6
-  );
-
-  transition:.3s;
-}
-
-/* BUTTON HOVER */
-
-.login-form button:hover{
-
-  transform:
-  translateY(-2px);
-
-  opacity:.95;
-}
-
-/* SMALL TEXT */
-
-.login-footer{
-
-  margin-top:20px;
-
-  text-align:center;
-
-  color:#cbd5e1;
-}
-
-.login-footer span{
-
-  color:#8b5cf6;
-
-  cursor:pointer;
-}
-
-/* MOBILE */
-
-@media(max-width:500px){
-
-  .login-form{
-
-    padding:30px 20px;
-  }
-
-  .login-form h1{
-
-    font-size:2rem;
-  }
-}
-.upvote-btn{
-
-  margin-top:15px;
-
-  padding:10px 18px;
-
-  border:none;
-
-  border-radius:12px;
-
-  background:#2563eb;
-
-  color:white;
-
-  cursor:pointer;
-
-  font-weight:600;
-}
-
-.faq-badge{
-
-  display:inline-block;
-
-  margin-top:10px;
-
-  background:#facc15;
-
-  color:black;
-
-  padding:8px 14px;
-
-  border-radius:10px;
-
-  font-weight:700;
-}
-
-.delete-btn{
-
-  margin-top:15px;
-
-  padding:10px 18px;
-
-  border:none;
-
-  border-radius:12px;
-
-  background:#ef4444;
-
-  color:white;
-
-  cursor:pointer;
-
-  font-weight:600;
+.category-body::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
