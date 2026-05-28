@@ -8,45 +8,49 @@ function FAQForm() {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
 
-    if (!question.trim() || !category || !description.trim()) {
-      alert("Please fill all fields");
-      return;
+  e.preventDefault();
+
+  if(
+    !question ||
+    !category ||
+    !description
+  ){
+
+    alert("Fill all fields");
+    return;
+  }
+
+  const response = await fetch(
+    "http://localhost:5000/questions",
+
+    {
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+
+      body: JSON.stringify({
+
+        question,
+        category,
+        description
+
+      })
     }
+  );
 
-    // Get existing questions
-    const existingQuestions =
-      JSON.parse(localStorage.getItem("questions")) || [];
+  const data =
+    await response.json();
 
-    // Create new question object
-    const newQuestion = {
-      id: Date.now(),
-      question,
-      category,
-      description,
-      verified: false,
-      answers: [],
-      createdAt: new Date().toLocaleString()
-    };
+  alert(data.message);
 
-    // Save to localStorage
-    localStorage.setItem(
-      "questions",
-      JSON.stringify([...existingQuestions, newQuestion])
-    );
+  navigate("/");
 
-    alert("Query submitted successfully!");
-
-    // Clear form
-    setQuestion("");
-    setCategory("");
-    setDescription("");
-
-    // Navigate to faq page
-    navigate("/");
-  };
+};
 
   return (
     <div className="form-container">

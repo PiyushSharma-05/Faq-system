@@ -1,200 +1,225 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useState
+} from "react";
 
 function QuestionPage() {
-    
 
-    const navigate=useNavigate();
+  const [questions, setQuestions] =
+    useState([]);
 
-  const [questions, setQuestions] = useState([]);
-  const [answerText, setAnswerText] = useState({});
+  const [answerText, setAnswerText] =
+    useState({});
+
+  /* FETCH QUESTIONS */
 
   useEffect(() => {
-  const storedQuestions =
-    JSON.parse(localStorage.getItem("questions")) || [];
 
-  console.log("Stored Questions:", storedQuestions);
+    fetch(
+      "http://localhost:5000/questions"
+    )
 
-  setQuestions(storedQuestions);
-}, []);
+      .then((res) => res.json())
+
+      .then((data) => {
+
+        setQuestions(data);
+
+      })
+
+      .catch((err) => {
+
+        console.log(err);
+
+      });
+
+  }, []);
+
+  /* SHOW ONLY QUESTIONS
+     WITHOUT VERIFIED ANSWERS */
 
   const unresolvedQuestions =
-  questions.filter(
-    (q) => q.status !== "resolved"
-  );
+    questions.filter((q) => {
 
-  const submitAnswer = (questionId) => {
+      const hasVerifiedAnswer =
+        q.answers?.some(
+          (a) => a.verified
+        );
 
-    if (!answerText[questionId]?.trim()) return;
-
-    const updatedQuestions = questions.map((q) => {
-
-      if (q.id === questionId) {
-
-        return {
-          ...q,
-
-          answers: [
-            ...q.answers,
-
-            {
-              id: Date.now(),
-              text: answerText[questionId]
-            }
-          ]
-        };
-      }
-
-      return q;
+      return !hasVerifiedAnswer;
     });
 
-    setQuestions(updatedQuestions);
+  /* SUBMIT ANSWER */
 
-    localStorage.setItem(
-      "questions",
-      JSON.stringify(updatedQuestions)
-    );
+  const submitAnswer = async (
+    questionId
+  ) => {
 
-    setAnswerText({
-      ...answerText,
-      [questionId]: ""
-    });
+    if (
+      !answerText[questionId]?.trim()
+    ) {
+      return;
+    }
+
+    try {
+
+      const response =
+        await fetch(
+
+          `http://localhost:5000/questions/${questionId}/answer`,
+
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+
+              text:
+                answerText[questionId]
+
+            })
+
+          }
+        );
+
+      const data =
+        await response.json();
+
+      alert(data.message);
+      /* REMOVE QUESTION
+         AFTER SUBMIT */
+
+      const updatedQuestions =
+        questions.filter(
+          (q) =>
+            q.id !== questionId
+        );
+
+      setQuestions(
+        updatedQuestions
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
   };
 
-  const verifyQuestion = (questionId) => {
+  /* EMPTY STATE */
 
-    const updatedQuestions = questions.map((q) => {
+  if (
+    unresolvedQuestions.length === 0
+  ) {
 
-      if (q.id === questionId) {
-
-        return {
-          ...q,
-          verified: true
-        };
-      }
-
-      return q;
-    });
-
-    setQuestions(updatedQuestions);
-
-    localStorage.setItem(
-      "questions",
-      JSON.stringify(updatedQuestions)
-    );
-    alert("Question is resoled successfully!")
-    navigate("/")
-  };
-
-  if (questions.length === 0) {
     return (
+
       <div className="question-page">
 
-        <h1>No questions to resolve</h1>
+        <div className="empty-state">
+
+          <h2>
+            No Questions To Resolve
+          </h2>
+
+          <p>
+            All community questions
+            are currently answered.
+          </p>
+
+        </div>
 
       </div>
-    );
-  }
 
-  if (unresolvedQuestions.length === 0) {
-    return (
-      <div className="question-page">
-
-        <h1>
-          All questions have been resolved ✅
-        </h1>
-
-      </div>
     );
   }
 
   return (
+
     <div className="question-page">
 
-      <h1>Resolve Questions</h1>
+      <h1>
+        Resolve Questions
+      </h1>
 
-      {unresolvedQuestions.map((question) => (
-
-        <div
-          key={question.id}
-          className="question-card"
-        >
-
-          <h2>{question.question}</h2>
-
-          <p>{question.description}</p>
-
-          <h3>Answers</h3>
-
-          {question.answers.length === 0 ? (
-
-            <p>No answers yet.</p>
-
-          ) : (
-
-            question.answers.map((answer) => (
-
-  <div
-    key={answer.id}
-    className="answer-card"
-  >
-
-    {answer.verified && (
-
-      <span className="verified-badge">
-        ✔ Admin Verified
-      </span>
-
-    )}
-
-    <p>{answer.text}</p>
-
-  </div>
-
-))
-          )}
-
-          <textarea
-            rows="4"
-            placeholder="Write answer..."
-
-            value={
-              answerText[question.id] || ""
-            }
-
-            onChange={(e) =>
-              setAnswerText({
-                ...answerText,
-                [question.id]:
-                  e.target.value
-              })
-            }
-          />
+      {unresolvedQuestions.map(
+        (question) => (
 
           <div
-            style={{
-              display:"flex",
-              gap:"10px",
-              marginTop:"10px"
-            }}
+            key={question.id}
+            className="question-card"
           >
 
-            <button className="submit-answer-btn"
+            {/* QUESTION */}
+
+            <h2>
+              {question.question}
+            </h2>
+
+            <p>
+              {question.description}
+            </p>
+
+            {/* ANSWER BOX */}
+
+            <textarea
+
+              rows="5"
+
+              placeholder=
+              "Write your answer..."
+
+              value={
+                answerText[
+                  question.id
+                ] || ""
+              }
+
+              onChange={(e) =>
+
+                setAnswerText({
+
+                  ...answerText,
+
+                  [question.id]:
+                    e.target.value
+
+                })
+
+              }
+            />
+
+            {/* SUBMIT BUTTON */}
+
+            <button
+
+              className=
+              "submit-answer-btn"
+
               onClick={() =>
-                submitAnswer(question.id)
+
+                submitAnswer(
+                  question.id
+                )
+
               }
             >
+
               Submit Answer
+
             </button>
-            
+
           </div>
-          
 
-        </div>
-
-      ))}
+        )
+      )}
 
     </div>
+
   );
 }
 

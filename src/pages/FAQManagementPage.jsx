@@ -2,80 +2,158 @@ import { useEffect, useState } from "react";
 
 function FAQManagementPage() {
 
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] =
+    useState([]);
+
+  /* GET LOGGED IN USER */
+
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
+
+  /* FETCH QUESTIONS */
 
   useEffect(() => {
 
-    const storedQuestions =
-      JSON.parse(
-        localStorage.getItem("questions")
-      ) || [];
+    fetch(
+      "http://localhost:5000/questions"
+    )
 
-    setQuestions(storedQuestions);
+      .then((res) => res.json())
+
+      .then((data) => {
+
+        setQuestions(data);
+
+      })
+
+      .catch((err) => {
+
+        console.log(err);
+
+      });
 
   }, []);
 
-  const verifyAnswer = (
+  /* VERIFY ANSWER */
+
+  const verifyAnswer = async (
     questionId,
     answerId
   ) => {
 
-    const updatedQuestions =
-      questions.map((question) => {
+    try {
 
-        if (
-          question.id === questionId
-        ) {
+      const response =
+        await fetch(
 
-          return {
+          `http://localhost:5000/questions/${questionId}/verify/${answerId}`,
 
-            ...question,
-            status:"resolved",
+          {
+            method: "PUT"
+          }
 
-            verified: true,
+        );
 
-            answers:
-              question.answers.map(
-                (answer) => ({
+      const data =
+        await response.json();
 
-                  ...answer,
+      alert(data.message);
 
-                  verified:
-                    answer.id === answerId
+      window.location.reload();
 
-                })
-              )
+    } catch (error) {
 
-          };
-        }
+      console.log(error);
 
-        return question;
-      });
-
-    localStorage.setItem(
-      "questions",
-      JSON.stringify(updatedQuestions)
-    );
-
-    setQuestions(updatedQuestions);
-
-    alert(
-      "Answer verified successfully!"
-    );
+    }
   };
 
+  /* ADMIN PROTECTION */
+
+  if (
+    !user ||
+    user.role !== "admin"
+  ) {
+
+    return (
+
+      <div className="page-wrapper">
+
+        <div className="empty-state">
+
+          <h1>
+            Access Denied
+          </h1>
+
+          <p>
+            Only admins can access
+            this dashboard.
+          </p>
+
+        </div>
+
+      </div>
+
+    );
+  }
+
+  const deleteQuestion = async (
+  questionId
+) => {
+
+  const confirmDelete =
+    window.confirm(
+      "Delete this question?"
+    );
+
+  if(!confirmDelete) return;
+
+  try {
+
+    const response =
+      await fetch(
+
+        `http://localhost:5000/questions/${questionId}`,
+
+        {
+          method:"DELETE"
+        }
+      );
+
+    const data =
+      await response.json();
+
+    alert(data.message);
+
+    window.location.reload();
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+};
   return (
+
     <div className="page-wrapper">
 
       <h1>
         Admin Moderation Dashboard
       </h1>
 
+      {/* EMPTY STATE */}
+
       {questions.length === 0 ? (
 
-        <p>
-          No questions available
-        </p>
+        <div className="empty-state">
+
+          <h2>
+            No Questions Available
+          </h2>
+
+        </div>
 
       ) : (
 
@@ -86,6 +164,8 @@ function FAQManagementPage() {
             className="question-card"
           >
 
+            {/* QUESTION */}
+
             <h2>
               {question.question}
             </h2>
@@ -94,14 +174,43 @@ function FAQManagementPage() {
               {question.description}
             </p>
 
+            <p>
+
+              <strong>
+                Category:
+              </strong>
+
+              {" "}
+
+              {question.category}
+
+            </p>
+
+            <p>
+
+              <strong>
+                Status:
+              </strong>
+
+              {" "}
+
+              {question.status}
+
+            </p>
+
             <h3>
               Submitted Answers
             </h3>
 
-            {question.answers.length === 0 ? (
+            {/* NO ANSWERS */}
 
-              <p>
-                No answers submitted yet
+            {!question.answers ||
+            question.answers.length === 0 ? (
+
+              <p className="no-answer">
+
+                No answers submitted yet.
+
               </p>
 
             ) : (
@@ -114,12 +223,16 @@ function FAQManagementPage() {
                     className="answer-card"
                   >
 
+                    {/* VERIFIED BADGE */}
+
                     {answer.verified && (
 
                       <span
                         className="verified-badge"
                       >
+
                         ✔ Verified
+
                       </span>
 
                     )}
@@ -128,21 +241,39 @@ function FAQManagementPage() {
                       {answer.text}
                     </p>
 
+                    {/* VERIFY BUTTON */}
+
                     {!answer.verified && (
 
                       <button
-                        className="approve-btn"
+
+                        className=
+                        "approve-btn"
+
                         onClick={() =>
+
                           verifyAnswer(
                             question.id,
                             answer.id
                           )
+
                         }
                       >
+
                         Verify Answer
+
                       </button>
 
                     )}
+                    <button
+
+                className="delete-btn"
+                onClick={() =>
+                  deleteQuestion(question.id)
+                }
+              >
+                Delete Question
+              </button>
 
                   </div>
 
@@ -157,6 +288,7 @@ function FAQManagementPage() {
       )}
 
     </div>
+
   );
 }
 

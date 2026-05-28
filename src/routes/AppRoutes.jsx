@@ -4,6 +4,7 @@ import QueryPage from "../pages/QueryPage";
 import PostFAQPage from "../pages/PostFAQPage";
 import FAQManagementPage from "../pages/FAQManagementPage";
 import QuestionPage from "../pages/QuestionPage";
+import LoginPage from "../pages/LoginPage";
 
 function AppRoutes() {
   return (
@@ -28,8 +29,15 @@ function AppRoutes() {
       path="/question"
       element={<QuestionPage />}
       />
+      <Route
+        path="/login"
+        element={<LoginPage />}
+        />
+        
+
 
     </Routes>
+
   );
 }
 

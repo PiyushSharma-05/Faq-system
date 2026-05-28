@@ -1,47 +1,203 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import {
+  useEffect,
+  useState
+} from "react";
 
-import SearchBar from "../components/faq/SearchBar";
-import CategoryCard from "../components/faq/CategoryCard";
+import {
+  Link
+} from "react-router-dom";
 
-import { faqData } from "../data/mockFaqs";
+import SearchBar
+from "../components/faq/SearchBar";
+
+import CategoryCard
+from "../components/faq/CategoryCard";
+
+import {
+  faqData
+} from "../data/mockFaqs";
 
 function QueryPage() {
-  const [search, setSearch] = useState("");
 
-  const filteredFaqs = faqData.map((category) => ({
-    ...category,
-    faqs: category.faqs.filter((faq) =>
-      faq.question
-        .toLowerCase()
-        .includes(search.toLowerCase())
+  const [search, setSearch] =
+    useState("");
+
+  const [
+    resolvedQuestions,
+    setResolvedQuestions
+  ] = useState([]);
+
+  /* FETCH RESOLVED QUESTIONS */
+
+  useEffect(() => {
+
+    fetch(
+      "http://localhost:5000/questions"
     )
-  }));
 
-  const noResults = filteredFaqs.every(
-    (category) => category.faqs.length === 0
-  );
+      .then((res) => res.json())
 
-  // Community Questions from localStorage
-  const questions =
-    JSON.parse(localStorage.getItem("questions")) || [];
+      .then((data) => {
 
-  const resolvedQuestions =
-    questions.filter(
-      (q) => q.status === "resolved"
+        const resolved =
+          data.filter(
+            (q) =>
+              q.status === "resolved"
+          );
+
+        setResolvedQuestions(
+          resolved
+        );
+
+      })
+
+      .catch((err) => {
+
+        console.log(err);
+
+      });
+
+  }, []);
+
+  /* UPVOTE FUNCTION */
+
+  const upvoteQuestion = async (
+  questionId
+) => {
+
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
+
+  if(!user){
+
+    alert("Please login");
+
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+
+        `http://localhost:5000/questions/${questionId}/upvote`,
+
+        {
+          method:"PUT",
+
+          headers:{
+            "Content-Type":
+            "application/json"
+          },
+
+          body: JSON.stringify({
+
+            username:
+            user.username
+
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    alert(data.message);
+
+    window.location.reload();
+
+  } catch(error){
+
+    console.log(error);
+
+  }
+};
+  /* ADD COMMUNITY FAQS INTO MAIN FAQ */
+
+  const communityFaqs =
+    resolvedQuestions.filter(
+      (q) => q.addedToFaq
+    );
+
+  communityFaqs.forEach((question) => {
+
+    const category =
+      faqData.find(
+        (cat) =>
+          cat.category ===
+          question.category
+      );
+
+    if (category) {
+
+      const alreadyExists =
+        category.faqs.find(
+          (faq) =>
+            faq.question ===
+            question.question
+        );
+
+      if (!alreadyExists) {
+
+        category.faqs.push({
+
+          question:
+            question.question,
+
+          answer:
+            question.answers.find(
+              (a) => a.verified
+            )?.text || ""
+
+        });
+      }
+    }
+  });
+
+  /* FILTER FAQS */
+
+  const filteredFaqs =
+    faqData.map((category) => ({
+
+      ...category,
+
+      faqs:
+        category.faqs.filter(
+          (faq) =>
+
+            faq.question
+              .toLowerCase()
+
+              .includes(
+                search.toLowerCase()
+              )
+        )
+
+    }));
+
+  const noResults =
+    filteredFaqs.every(
+      (category) =>
+        category.faqs.length === 0
     );
 
   return (
+
     <div className="faq-page">
 
-      {/* Hero Section */}
+      {/* HERO SECTION */}
 
       <div className="hero">
 
-        <h1>Frequently Asked Questions</h1>
+        <h1>
+          Frequently Asked Questions
+        </h1>
 
         <p>
-          Find answers to commonly asked questions
+          Find answers to commonly
+          asked questions
         </p>
 
         <div className="search-section">
@@ -55,24 +211,29 @@ function QueryPage() {
             to="/post-query"
             className="ask-question-btn"
           >
+
             + Ask Question
+
           </Link>
 
         </div>
 
       </div>
 
-      {/* Resolve Question Card */}
+      {/* RESOLVE CARD */}
 
       <div className="resolve-card">
 
         <div>
 
-          <h2>Resolve a Question</h2>
+          <h2>
+            Resolve a Question
+          </h2>
 
           <p>
-            Help fellow students by answering
-            unresolved community questions.
+            Help fellow students
+            by answering unresolved
+            community questions.
           </p>
 
         </div>
@@ -81,12 +242,14 @@ function QueryPage() {
           to="/question"
           className="resolve-btn"
         >
+
           Resolve Questions
+
         </Link>
 
       </div>
 
-      {/* FAQ Grid */}
+      {/* FAQ GRID */}
 
       {!noResults ? (
 
@@ -94,11 +257,14 @@ function QueryPage() {
 
           {filteredFaqs.map(
             (category) =>
+
               category.faqs.length > 0 && (
+
                 <CategoryCard
                   key={category.id}
                   category={category}
                 />
+
               )
           )}
 
@@ -108,24 +274,29 @@ function QueryPage() {
 
         <div className="ask-card">
 
-          <h2>No matching FAQ found</h2>
+          <h2>
+            No matching FAQ found
+          </h2>
 
           <p>
-            Can't find what you're looking for?
+            Can't find what
+            you're looking for?
           </p>
 
           <Link
             to="/post-query"
             className="ask-btn"
           >
+
             Ask a New Question
+
           </Link>
 
         </div>
 
       )}
 
-      {/* Resolved Questions Section */}
+      {/* RESOLVED COMMUNITY QUESTIONS */}
 
       {resolvedQuestions.length > 0 && (
 
@@ -135,56 +306,94 @@ function QueryPage() {
             Resolved Community Questions
           </h2>
 
-          {resolvedQuestions.map((question) => (
+          {resolvedQuestions.map(
+            (question) => (
 
-            <div
-              key={question.id}
-              className="resolved-card"
-            >
+              <div
+                key={question.id}
+                className="resolved-card"
+              >
 
-              <h3>
-                {question.question}
-              </h3>
+                <h3>
+                  {question.question}
+                </h3>
 
-              <p>
-                {question.description}
-              </p>
+                <p>
+                  {question.description}
+                </p>
 
-              {question.answers &&
-                question.answers.map(
-                  (answer) =>
+                {/* VERIFIED ANSWERS */}
 
-                    answer.verified && (
+                {question.answers &&
+                  question.answers.map(
+                    (answer) =>
 
-                      <div
-                        key={answer.id}
-                        className="answer-card"
-                      >
+                      answer.verified && (
 
-                        <span
-                          className="verified-badge"
+                        <div
+                          key={answer.id}
+                          className="answer-card"
                         >
-                          ✔ Admin Verified
-                        </span>
 
-                        <p>
-                          {answer.text}
-                        </p>
+                          <span
+                            className="verified-badge"
+                          >
 
-                      </div>
+                            ✔ Admin Verified
 
+                          </span>
+
+                          <p>
+                            {answer.text}
+                          </p>
+
+                        </div>
+
+                      )
+                  )}
+
+                {/* UPVOTE BUTTON */}
+
+                <button
+                  className="upvote-btn"
+                  onClick={() =>
+                    upvoteQuestion(
+                      question.id
                     )
+                  }
+                >
+
+                  👍 Upvote (
+                  {question.upvotes || 0}
+                  )
+
+                </button>
+
+                {/* FAQ BADGE */}
+
+                {question.addedToFaq && (
+
+                  <div
+                    className="faq-badge"
+                  >
+
+                    ⭐ Added to Official FAQ
+
+                  </div>
+
                 )}
 
-            </div>
+              </div>
 
-          ))}
+            )
+          )}
 
         </div>
 
       )}
 
     </div>
+
   );
 }
 
