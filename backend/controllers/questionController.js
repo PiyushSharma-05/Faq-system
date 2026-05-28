@@ -1,4 +1,5 @@
 const fs = require("fs");
+
 const path = require("path");
 
 const filePath = path.join(
@@ -28,9 +29,11 @@ const addQuestion = (req, res) => {
     );
 
   const newQuestion = {
+
     id: Date.now(),
 
-    question: req.body.question,
+    question:
+      req.body.question,
 
     description:
       req.body.description,
@@ -40,13 +43,22 @@ const addQuestion = (req, res) => {
 
     status: "unresolved",
 
+    upvotes: 0,
+
+    upvotedBy: [],
+
+    addedToFaq: false,
+
     answers: []
+
   };
 
   questions.push(newQuestion);
 
   fs.writeFileSync(
+
     filePath,
+
     JSON.stringify(
       questions,
       null,
@@ -55,8 +67,10 @@ const addQuestion = (req, res) => {
   );
 
   res.json({
+
     message:
-    "Question added successfully"
+      "Question added successfully"
+
   });
 };
 
@@ -83,6 +97,7 @@ const addAnswer = (req, res) => {
           text: req.body.text,
 
           verified: false
+
         });
       }
 
@@ -90,7 +105,9 @@ const addAnswer = (req, res) => {
     });
 
   fs.writeFileSync(
+
     filePath,
+
     JSON.stringify(
       updatedQuestions,
       null,
@@ -99,14 +116,19 @@ const addAnswer = (req, res) => {
   );
 
   res.json({
+
     message:
-    "Answer submitted"
+      "Answer submitted"
+
   });
 };
 
 /* VERIFY ANSWER */
 
-const verifyAnswer = (req, res) => {
+const verifyAnswer = (
+  req,
+  res
+) => {
 
   const questions =
     JSON.parse(
@@ -117,27 +139,33 @@ const verifyAnswer = (req, res) => {
     questions.map((q) => {
 
       if (
-        q.id == req.params.questionId
+        q.id ==
+        req.params.questionId
       ) {
 
         q.status = "resolved";
 
         q.answers =
-          q.answers.map(answer => ({
+          q.answers.map(
+            (answer) => ({
 
-            ...answer,
+              ...answer,
 
-            verified:
-              answer.id ==
-              req.params.answerId
-          }));
+              verified:
+                answer.id ==
+                req.params.answerId
+
+            })
+          );
       }
 
       return q;
     });
 
   fs.writeFileSync(
+
     filePath,
+
     JSON.stringify(
       updatedQuestions,
       null,
@@ -146,10 +174,150 @@ const verifyAnswer = (req, res) => {
   );
 
   res.json({
+
     message:
-    "Answer verified"
+      "Answer verified"
+
   });
 };
+
+/* UPVOTE QUESTION */
+
+const upvoteQuestion = (
+  req,
+  res
+) => {
+
+  const questions =
+    JSON.parse(
+      fs.readFileSync(filePath)
+    );
+
+  const username =
+    req.body.username;
+
+  let alreadyUpvoted = false;
+
+  const updatedQuestions =
+    questions.map((q) => {
+
+      if (
+        q.id == req.params.id
+      ) {
+
+        /* CREATE ARRAY */
+
+        if (!q.upvotedBy) {
+
+          q.upvotedBy = [];
+        }
+
+        /* CHECK IF USER
+           ALREADY UPVOTED */
+
+        if (
+          q.upvotedBy.includes(
+            username
+          )
+        ) {
+
+          alreadyUpvoted = true;
+
+          return q;
+        }
+
+        /* ADD USER */
+
+        q.upvotedBy.push(
+          username
+        );
+
+        /* INCREASE COUNT */
+
+        q.upvotes =
+          (q.upvotes || 0) + 1;
+
+        /* FAQ THRESHOLD */
+
+        if (q.upvotes >= 5) {
+
+          q.addedToFaq = true;
+        }
+      }
+
+      return q;
+    });
+
+  fs.writeFileSync(
+
+    filePath,
+
+    JSON.stringify(
+      updatedQuestions,
+      null,
+      2
+    )
+  );
+
+  /* RESPONSE */
+
+  if (alreadyUpvoted) {
+
+    return res.json({
+
+      message:
+        "Already upvoted"
+
+    });
+  }
+
+  res.json({
+
+    message:
+      "Upvoted successfully"
+
+  });
+};
+
+/* DELETE QUESTION */
+
+const deleteQuestion = (
+  req,
+  res
+) => {
+
+  const questions =
+    JSON.parse(
+      fs.readFileSync(filePath)
+    );
+
+  const filteredQuestions =
+    questions.filter(
+
+      (q) =>
+        q.id != req.params.id
+
+    );
+
+  fs.writeFileSync(
+
+    filePath,
+
+    JSON.stringify(
+      filteredQuestions,
+      null,
+      2
+    )
+  );
+
+  res.json({
+
+    message:
+      "Question deleted successfully"
+
+  });
+};
+
 
 module.exports = {
 
@@ -159,5 +327,8 @@ module.exports = {
 
   addAnswer,
 
-  verifyAnswer
+  verifyAnswer,
+
+  upvoteQuestion
+  , deleteQuestion
 };

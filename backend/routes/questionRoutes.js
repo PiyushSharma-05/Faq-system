@@ -10,7 +10,7 @@ const {
 
   addAnswer,
 
-  verifyAnswer
+  verifyAnswer,upvoteQuestion , deleteQuestion
 
 } = require(
   "../controllers/questionController"
@@ -43,5 +43,14 @@ router.put(
   "/:questionId/verify/:answerId",
   verifyAnswer
 );
+router.put(
+  "/:id/upvote",
+  upvoteQuestion
+);
+router.delete(
+  "/:id",
+  deleteQuestion
+);
+
 
 module.exports = router;
