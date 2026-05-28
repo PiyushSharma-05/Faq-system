@@ -1,6 +1,5 @@
 import {
-  useEffect,
-  useState
+  useState,useEffect
 } from "react";
 
 import {
@@ -20,6 +19,12 @@ function QueryPage() {
 
   const [search, setSearch] =
     useState("");
+    const [
+  resolvedQuestions,
+
+  setResolvedQuestions
+
+] = useState([]);
 
   // 1. Structural Map covering all categories shown in the UI image
 // 1. Keep your templates exactly as they are
@@ -56,6 +61,7 @@ const structuredCategories = categoryTemplates.map(cat => {
     
     return false;
   });
+  
 
   return {
     id: cat.id,
@@ -79,10 +85,39 @@ const structuredCategories = categoryTemplates.map(cat => {
   })).filter(cat => cat.faqs.length > 0); // Hide empty blocks dynamically
 
   const noResults = filteredFaqs.length === 0;
+  /* FETCH RESOLVED QUESTIONS */
 
-  // Community Questions from localStorage
-  const questions = JSON.parse(localStorage.getItem("questions")) || [];
-  const resolvedQuestions = questions.filter((q) => q.status === "resolved");
+useEffect(() => {
+
+  fetch(
+    "http://localhost:5000/questions"
+  )
+
+    .then((res) => res.json())
+
+    .then((data) => {
+
+      const resolved =
+        data.filter(
+          (q) =>
+            q.status === "resolved"
+        );
+
+      setResolvedQuestions(
+        resolved
+      );
+
+    })
+
+    .catch((err) => {
+
+      console.log(err);
+
+    });
+
+}, []);
+
+  
 
   return (
 
@@ -135,27 +170,142 @@ const structuredCategories = categoryTemplates.map(cat => {
       )}
 
       {/* Resolved Questions Section */}
-      {resolvedQuestions.length > 0 && (
-        <div className="resolved-section">
-          <h2>Resolved Community Questions</h2>
-          {resolvedQuestions.map((question) => (
-            <div key={question.id} className="resolved-card">
-              <h3>{question.question}</h3>
-              <p>{question.description}</p>
-              {question.answers &&
-                question.answers.map(
-                  (answer) =>
-                    answer.verified && (
-                      <div key={answer.id} className="answer-card">
-                        <span className="verified-badge">✔ Admin Verified</span>
-                        <p>{answer.text}</p>
-                      </div>
-                    )
-                )}
-            </div>
-          ))}
+      {/* Resolved Questions Section */}
+
+{resolvedQuestions.length > 0 && (
+
+  <div className="resolved-section">
+
+    <h2>
+      Resolved Community Questions
+    </h2>
+
+    {resolvedQuestions.map(
+      (question) => (
+
+        <div
+          key={question.id}
+          className="resolved-card"
+        >
+
+          <h3>
+            {question.question}
+          </h3>
+
+          <p>
+            {question.description}
+          </p>
+
+          {/* VERIFIED ANSWERS */}
+
+          {question.answers &&
+            question.answers.map(
+
+              (answer) =>
+
+                answer.verified && (
+
+                  <div
+                    key={answer.id}
+                    className="answer-card"
+                  >
+
+                    <span className="verified-badge">
+
+                      ✔ Admin Verified
+
+                    </span>
+
+                    <p>
+                      {answer.text}
+                    </p>
+
+                  </div>
+
+                )
+            )
+          }
+
+          {/* UPVOTE BUTTON */}
+
+          <button
+
+            className="upvote-btn"
+
+            onClick={async () => {
+
+              const user =
+                JSON.parse(
+                  localStorage.getItem(
+                    "user"
+                  )
+                );
+
+              if(!user){
+
+                alert(
+                  "Please login first"
+                );
+
+                return;
+              }
+
+              try {
+
+                const response =
+                  await fetch(
+
+                    `http://localhost:5000/questions/${question.id}/upvote`,
+
+                    {
+                      method:"PUT",
+
+                      headers:{
+                        "Content-Type":
+                        "application/json"
+                      },
+
+                      body: JSON.stringify({
+
+                        username:
+                        user.username
+
+                      })
+                    }
+                  );
+
+                const data =
+                  await response.json();
+
+                alert(
+                  data.message
+                );
+
+                window.location.reload();
+
+              } catch(error){
+
+                console.log(error);
+
+              }
+
+            }}
+
+          >
+
+            👍 Upvote
+            ({question.upvotes || 0})
+
+          </button>
+
         </div>
-      )}
+
+      )
+    )}
+
+  </div>
+
+)}
 
     </div>
 
