@@ -25,7 +25,8 @@ const categoryTemplates = [
   { id: 9, title: "Rosetta Journal", sub: "9. Rosetta — your internship journal", sections: ["9"] },
   { id: 10, title: "Coursework", sub: "10. Phase 1 — coursework, Vibe LMS, and live sessions", sections: ["10"] },
   { id: 11, title: "Communication Tools", sub: "11. Yaksha Chat Related", sections: ["11"] },
-  { id: 12, title: "Tech Support", sub: "12 & 13. ViBe Platform & Team Formation", sections: ["12", "13"] }
+  { id: 12, title: "Tech Support", sub: "12. ViBe Platform", sections: ["12"] },
+  { id: 13, title: "Team Formation", sub: "13. Team Formation & Grouping", sections: ["13"] }
 ];
 
 // 2. Exact RegEx parsing to strictly assign items to these 12 columns
