@@ -1,38 +1,65 @@
 import QueryCard from "./QueryCard";
 
 function CategoryCard({ category }) {
-  // Guard clause to prevent crashes if category data is missing
+
+  // SAFETY CHECK
   if (!category) return null;
 
   return (
+
     <div className="category-card">
-      {/* Category Header (e.g., Onboarding & Admin) */}
+
+      {/* HEADER */}
       {category.categoryTitle && (
-        <div className="category-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3>{category.categoryTitle}</h3>
-          <span className="faq-count-badge" style={{ backgroundColor: '#3b82f6', color: '#fff', fontSize: '12px', padding: '2px 8px', borderRadius: '12px', fontWeight: 'bold' }}>
+
+        <div className="category-header">
+
+          <h3>
+            {category.categoryTitle}
+          </h3>
+
+          <span className="faq-count-badge">
             {category.faqs?.length || 0}
           </span>
+
         </div>
+
       )}
 
-      {/* Sub-topic section heading (e.g., 1. About the internship) */}
+      {/* SUBTITLE */}
       {category.subTitle && (
-        <div className="category-subtitle" style={{ fontWeight: "bold", padding: "8px 12px" }}>
+
+        <div className="category-subtitle">
+
           {category.subTitle}
+
         </div>
+
       )}
 
-      {/* Category Body mapping over all filtered FAQs matching this section */}
+      {/* FAQ LIST */}
       <div className="category-body">
-        {category.faqs && category.faqs.map((faqItem, index) => (
-          <QueryCard
-            key={faqItem.id || index}
-            faq={faqItem}
-            index={index}
-          />
-        ))}
+
+        {category.faqs &&
+          category.faqs.map((faqItem, index) => (
+
+            <div
+              key={faqItem.id || index}
+              id={`faq-${faqItem.id}`}
+              className="faq-scroll-target"
+            >
+
+              <QueryCard
+                faq={faqItem}
+                index={index}
+              />
+
+            </div>
+
+          ))}
+
       </div>
+
     </div>
   );
 }
